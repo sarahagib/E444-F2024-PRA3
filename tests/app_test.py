@@ -5,6 +5,8 @@ from project.app import app, init_db
 import os 
 import pytest
 
+import json
+
 TEST_DB = 'test.db'
 
 
@@ -78,4 +80,8 @@ def test_messages(client):
     assert b"<strong>HTML</strong> allowed here" in rv.data 
 
 
-
+def test_delete_message(client):
+    """ensure the messages are being deleted"""
+    rv = client.get('delete/1')
+    data = json.loads(rv.data) 
+    assert data['status'] == 1
