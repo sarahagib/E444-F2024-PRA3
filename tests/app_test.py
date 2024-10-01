@@ -54,16 +54,14 @@ def test_empty_db(client):
 
 
 def test_login_logout(client):
-    """test login/logout functionality using helper function"""
-    
-    rv = login(client, app.config["USERNAME"], app.config["PASSWORD"]) 
-    assert b"you were logged in" in rv.data
-    rv = logout(client) 
-    assert b"you were logged out" in rv.data
-
-    rv = login(client, app.config["USERNAME"]+"x", app.config["PASSWORD"])
+    """Test login and logout using helper functions"""
+    rv = login(client, app.config["USERNAME"], app.config["PASSWORD"])
+    assert b"You were logged in" in rv.data
+    rv = logout(client)
+    assert b"You were logged out" in rv.data
+    rv = login(client, app.config["USERNAME"] + "x", app.config["PASSWORD"])
     assert b"Invalid username" in rv.data
-    rv = login(client, app.config["USERNAME"], app.config["PASSWORD"]+"x")
+    rv = login(client, app.config["USERNAME"], app.config["PASSWORD"] + "x")
     assert b"Invalid password" in rv.data
 
 
