@@ -1,4 +1,5 @@
 import sqlite3
+import os
 from pathlib import Path 
 
 from flask import Flask, g, render_template, request, session, flash, redirect, url_for, abort, jsonify
@@ -13,8 +14,13 @@ DATABASE = "flaskr.db"
 USERNAME = "admin"
 PASSWORD = "admin" 
 SECRET_KEY = "change_me"
-SQLALCHEMY_DATABASE_URI = f'sqlite:///{Path(basedir).joinpath(DATABASE)}'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+url = os.getenv('DATABASE_URL', f'sqlite:///{Path(basedir).joinpath(DATABASE)}')
+if url.startswith("postgres://"):
+    url = url.replace("postgres://", "postgresql://", 1)
+
+SQLALCHEMY_DATABASE_URI = url           ## changed to connect to postgresSQL
 
 
 # create and initialize a new Flask app
@@ -33,6 +39,8 @@ def index():
     """Searches the database for entries, then displays them."""
     entries = db.session.query(models.Post)
     return render_template('index.html', entries=entries)
+
+
 
 # section 2: login, logout and required_login 
 @app.route('/login', methods=['GET','POST'])
@@ -67,6 +75,8 @@ def login_required(f):
             return jsonify({'status':0, 'message': 'Please log in.'}), 401
         return f(*args, **kwargs) 
     return decorated_function
+
+
 
 # section 3: add, delete, search
 @app.route('/add', methods=['POST'])
