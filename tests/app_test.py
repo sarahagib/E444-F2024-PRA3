@@ -25,7 +25,7 @@ def login(client, username, password):
     """Login helper function"""
     return client.post(
         "/login",
-        data=dict(username=username, password=password), 
+        data=dict(username=username, password=password),
         follow_redirects=True,
     )
 
@@ -52,7 +52,7 @@ def test_database(client):
 def test_empty_db(client):
     """ensures db is blank"""
     rv = client.get("/")
-    assert b"No entries yet. Add some!" in rv.data 
+    assert b"No entries yet. Add some!" in rv.data
 
 
 def test_login_logout(client):
@@ -72,22 +72,22 @@ def test_messages(client):
     login(client, app.config["USERNAME"], app.config["PASSWORD"])
     rv = client.post(
         "/add",
-        data=dict(title="<Hello>", text="<strong>HTML</strong> allowed here"), 
+        data=dict(title="<Hello>", text="<strong>HTML</strong> allowed here"),
         follow_redirects=True,
     )
     assert b"No entries here so far" not in rv.data
     assert b"&lt;Hello&gt;" in rv.data
-    assert b"<strong>HTML</strong> allowed here" in rv.data 
+    assert b"<strong>HTML</strong> allowed here" in rv.data
 
 
 def test_delete_message(client):
     """ensure the messages are being deleted"""
     # first test that cannot delete without signing in
     rv = client.get('delete/1')
-    data = json.loads(rv.data) 
+    data = json.loads(rv.data)
     assert data['status'] == 0
 
-    # then test delete after sign in. 
+    # then test delete after sign in.
     login(client, app.config["USERNAME"], app.config["PASSWORD"])
     rv = client.get("/delete/1")
     data = json.loads(rv.data)
@@ -102,24 +102,23 @@ def test_search_w_query(client):
     # 1. post a query
     client.post(
         "/add",
-        data=dict(title="<Hello>", text="<strong>HTML</strong> allowed here"), 
+        data=dict(title="<Hello>", text="<strong>HTML</strong> allowed here"),
         follow_redirects=True,
     )
 
-    # 2. get that query 
+    # 2. get that query
     rv = client.get("/search/?query=hello")
 
-    # 3. check that data of query not empty 
+    # 3. check that data of query not empty
     assert b"&lt;Hello&gt;" in rv.data
     assert b"<strong>HTML</strong> allowed here" in rv.data
 
 
 def test_search_wo_query(client):
 
-    #0. login
+    # 0. login
     login(client, app.config["USERNAME"], app.config["PASSWORD"])
 
-    #1. search 
+    # 1. search
     rv = client.get("/search/")
-    assert b"Search" in rv.data 
-
+    assert b"Search" in rv.data
