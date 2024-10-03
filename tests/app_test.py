@@ -84,9 +84,16 @@ def test_messages(client):
 
 def test_delete_message(client):
     """ensure the messages are being deleted"""
+    # first test that cannot delete without signing in
     rv = client.get('delete/1')
     data = json.loads(rv.data) 
-    assert data['status'] == 1
+    assert data['status'] == 0
+
+    # then test delete after sign in. 
+    login(client, app.config["USERNAME"], app.config["PASSWORD"])
+    rv = client.get("/delete/1")
+    data = json.loads(rv.data)
+    assert data["status"] == 1
 
 
 def test_search_w_query(client):
@@ -117,3 +124,6 @@ def test_search_wo_query(client):
     #1. search 
     rv = client.get("/search/")
     assert b"Search" in rv.data 
+
+
+# TODO : write test for login_requried. 

@@ -4,6 +4,7 @@ from pathlib import Path
 from flask import Flask, g, render_template, request, session, flash, redirect, url_for, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy 
 
+from functools import wraps 
 
 basedir = Path(__file__).resolve().parent 
 
@@ -26,14 +27,14 @@ db = SQLAlchemy(app)
 
 from project import models 
 
-
+# section 1: index
 @app.route("/")
 def index():
     """Searches the database for entries, then displays them."""
     entries = db.session.query(models.Post)
     return render_template('index.html', entries=entries)
 
-
+# section 2: login, logout and required_login 
 @app.route('/login', methods=['GET','POST'])
 def login():
     """user login/authentication/session management."""
@@ -58,6 +59,16 @@ def logout():
     return redirect(url_for('index'))
 
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            flash('Please log in.')
+            return jsonify({'status':0, 'message': 'Please log in.'}), 401
+        return f(*args, **kwargs) 
+    return decorated_function
+
+# section 3: add, delete, search
 @app.route('/add', methods=['POST'])
 def add_entry():
     """add new post to database"""
@@ -71,16 +82,20 @@ def add_entry():
 
 
 @app.route('/delete/<post_id>', methods=['GET'])
+@login_required 
 def delete_entry(post_id):
     """Delete post from database"""
     result = {'status': 0, 'message': 'Error'} 
     try:
-        db.session.query(models.Post).filter_by(id=post_id).delete()
+        new_id = post_id
+        db.session.query(models.Post).filter_by(id=new_id).delete()
         db.session.commit()
         result = {'status': 1, 'message': 'Post Deleted'}
+        flash('The entry was deleted.')
     except Exception as e: 
         result = {'status': 0, 'message': repr(e)}
     return jsonify(result)
+
 
 @app.route('/search/', methods=['GET'])
 def search():
