@@ -5,7 +5,7 @@ import json
 from project.app import app, db
 
 
-TEST_DB = 'test.db'
+TEST_DB = "test.db"
 
 
 @pytest.fixture
@@ -32,10 +32,7 @@ def login(client, username, password):
 
 def logout(client):
     """Logout helper function"""
-    return client.get(
-        "/logout",
-        follow_redirects=True
-    )
+    return client.get("/logout", follow_redirects=True)
 
 
 def test_index(client):
@@ -83,9 +80,9 @@ def test_messages(client):
 def test_delete_message(client):
     """ensure the messages are being deleted"""
     # first test that cannot delete without signing in
-    rv = client.get('delete/1')
+    rv = client.get("delete/1")
     data = json.loads(rv.data)
-    assert data['status'] == 0
+    assert data["status"] == 0
 
     # then test delete after sign in.
     login(client, app.config["USERNAME"], app.config["PASSWORD"])
