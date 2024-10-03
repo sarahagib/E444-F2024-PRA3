@@ -1,11 +1,9 @@
 from pathlib import Path
+import pytest
+import json
 
 from project.app import app, db
 
-import os 
-import pytest
-
-import json
 
 TEST_DB = 'test.db'
 
@@ -110,11 +108,11 @@ def test_search_w_query(client):
 
     # 2. get that query 
     rv = client.get("/search/?query=hello")
-    print(rv.data)
 
     # 3. check that data of query not empty 
     assert b"&lt;Hello&gt;" in rv.data
     assert b"<strong>HTML</strong> allowed here" in rv.data
+
 
 def test_search_wo_query(client):
 
@@ -125,5 +123,3 @@ def test_search_wo_query(client):
     rv = client.get("/search/")
     assert b"Search" in rv.data 
 
-
-# TODO : write test for login_requried. 
